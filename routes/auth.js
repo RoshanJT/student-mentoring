@@ -6,7 +6,7 @@ const config = require('../config');
 const router = express.Router();
 
 // Register new student
-router.post('/register', async (req, res) => {
+router.post('/api/auth/register', async (req, res) => {
   try {
     const { email, password, name, program, studentId } = req.body;
 
@@ -58,7 +58,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Login student
-router.post('/login', async (req, res) => {
+router.post('api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -120,7 +120,7 @@ const verifyToken = (req, res, next) => {
 };
 
 // Get current user profile
-router.get('/profile', verifyToken, async (req, res) => {
+router.get('api/auth/profile', verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.userId).select('-password');
     if (!user) {
