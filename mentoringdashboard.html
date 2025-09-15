@@ -5,6 +5,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Christ Mentoring - Profile</title>
+    <script src="frontend-config.js"></script>
+<script>
+  // Example: call login API
+  fetch(apiUrl("/auth/login"), {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+    headers: { "Content-Type": "application/json" }
+  })
+  .then(res => res.json())
+  .then(data => console.log(data));
+</script>
+
 
     <style>
         * {
