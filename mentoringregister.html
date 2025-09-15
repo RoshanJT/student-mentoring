@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Christ Mentoring - Register</title>
+  <link rel="stylesheet" href="stylelogin.css">
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="logo">CU <span>ChristMentoring</span></div>
+    <nav>
+      <button class="nav-btn" onclick="navigate('about')">About</button>
+      <button class="nav-btn" onclick="navigate('login')">Sign In</button>
+    </nav>
+  </header>
+
+  <div class="main">
+    <div class="logo-image">
+      <img src="Christuniversitylogo.jpg" alt="Christ University Logo">
+    </div>
+
+    <div class="form-container">
+      <h2>Create your account</h2>
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="Enter your email" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="studentId">Student ID</label>
+          <input type="text" id="studentId" name="studentId" placeholder="Enter your student ID" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="program">Program</label>
+          <select id="program" name="program" required>
+            <option value="">-- Select Program --</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="Information Technology">Information Technology</option>
+            <option value="Civil Engineering">Civil Engineering</option>
+            <option value="Mechanical Engineering">Mechanical Engineering</option>
+            <option value="Electrical Engineering">Electrical Engineering</option>
+            <option value="Electronics & Communication">Electronics & Communication</option>
+            <option value="Data Science">Data Science</option>
+            <option value="Artificial Intelligence">Artificial Intelligence</option>
+            <option value="Biotechnology">Biotechnology</option>
+            <option value="Physics">Physics</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter your password" required minlength="6">
+        </div>
+        
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required minlength="6">
+        </div>
+
+        <button type="button" onclick="register()">Create Account</button>
+
+        <div class="register">
+          Already have an account? <a href="#" onclick="navigate('login')">Sign In</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="frontend-config.js"></script>
+  <script>
+    // Check if user is already logged in
+    window.addEventListener('load', () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        window.location.href = 'index.html';
+      }
+    });
+
+    async function register() {
+      const form = document.getElementById('registerForm');
+      const formData = new FormData(form);
+      
+      const name = formData.get('name');
+      const email = formData.get('email');
+      const studentId = formData.get('studentId');
+      const program = formData.get('program');
+      const password = formData.get('password');
+      const confirmPassword = formData.get('confirmPassword');
+
+      // Validation
+      if (!name || !email || !studentId || !program || !password || !confirmPassword) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+      }
+
+      if (password.length < 6) {
+        alert("Password must be at least 6 characters long.");
+        return;
+      }
+
+      try {
+        const response = await fetch(apiUrl('/auth/register'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            studentId,
+            program,
+            password
+          })
+        });
+
+        let data;
+        const text = await response.text();
+        try { data = JSON.parse(text); } catch { data = { message: text || 'Unknown error' }; }
+
+        if (response.ok) {
+          alert("Account created successfully! You can now sign in.");
+          window.location.href = "mentoringlogin.html";
+        } else {
+          console.error('Register failed:', { status: response.status, data });
+          alert((data && data.message ? data.message : 'Registration failed.') + `\nStatus: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('Registration error:', error);
+        alert("Registration failed. Please try again.");
+      }
+    }
+
+    function navigate(page) {
+      const routes = {
+        about: "about.html",
+        login: "mentoringlogin.html"
+      };
+      if (routes[page]) {
+        window.location.href = routes[page];
+      }
+    }
+  </script>
+
+</body>
+</html>
+
+

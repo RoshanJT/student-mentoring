@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feedback - Christ Mentoring</title>
+  <link rel="stylesheet" href="stylefeed.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">CU <span>ChristMentoring</span></div>
+    <nav>
+      <button class="nav-btn" onclick="navigate('home')">Home</button>
+      <button class="nav-btn" onclick="navigate('profile')">Profile</button>
+      <button class="nav-btn" onclick="navigate('meetings')">Meetings</button>
+      <button class="nav-btn active" onclick="navigate('feedback')">Feedback</button>
+      <button class="logout-btn" onclick="navigate('logout')">Logout</button>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1>Feedback</h1>
+    <form id="feedbackForm">
+      <label for="mentor">Mentor</label>
+      <input type="text" id="mentor" name="mentor" />
+
+      <label for="program">Program</label>
+      <select id="program" name="program">
+        <option value="">-- Select Program --</option>
+        <option value="Computer Science">Computer Science</option>
+        <option value="Information Technology">Information Technology</option>
+        <option value="Civil Engineering">Civil Engineering</option>
+        <option value="Mechanical Engineering">Mechanical Engineering</option>
+        <option value="Electrical Engineering">Electrical Engineering</option>
+        <option value="Electronics & Communication">Electronics & Communication</option>
+        <option value="Data Science">Data Science</option>
+        <option value="Artificial Intelligence">Artificial Intelligence</option>
+        <option value="Biotechnology">Biotechnology</option>
+        <option value="Physics">Physics</option>
+      </select>
+
+      <h3 style="margin-top: 30px;">Rate your mentor</h3>
+
+      <label for="expertise">Expertise</label>
+      <input type="text" id="expertise" name="expertise" />
+
+      <label for="communication">Communication Skills</label>
+      <input type="text" id="communication" name="communication" />
+
+      <label for="supportiveness">Supportiveness</label>
+      <input type="text" id="supportiveness" name="supportiveness" />
+
+      <label for="suggestions">Suggestions for improvement</label>
+      <textarea id="suggestions" name="suggestions"></textarea>
+
+      <label>Overall Satisfaction</label>
+      <div class="rating" id="ratingGroup">
+        <button type="button" onclick="selectRating(1)">1</button>
+        <button type="button" onclick="selectRating(2)">2</button>
+        <button type="button" onclick="selectRating(3)">3</button>
+        <button type="button" onclick="selectRating(4)">4</button>
+        <button type="button" onclick="selectRating(5)">5</button>
+      </div>
+
+      <div class="submit-btn">
+        <button type="button" onclick="submitFeedback()">Submit Feedback</button>
+      </div>
+    </form>
+  </div>
+
+  <footer>
+    <div class="footer-links">
+      <a href="#">Home</a>
+      <a href="#">About Us</a>
+      <a href="#">Services</a>
+      <a href="#">Contact</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+    </div>
+    <div style="margin: 10px 0;">🔗 📱 💬 📲</div>
+    <p>© 2025 Christ Mentoring. All rights reserved.</p>
+  </footer>
+
+  <script src="frontend-config.js"></script>
+  <script>
+    let selectedRating = 0;
+
+    // Check authentication
+    window.addEventListener('load', async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = 'mentoringlogin.html';
+        return;
+      }
+
+      await loadUserData();
+    });
+
+    async function loadUserData() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(apiUrl('/auth/profile'), {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const user = data.user;
+          
+          // Pre-fill program if available
+          if (user && user.program) {
+            const programSelect = document.getElementById('program');
+            if (programSelect) {
+              programSelect.value = user.program;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      }
+    }
+
+    function selectRating(rating) {
+      selectedRating = rating;
+      const buttons = document.querySelectorAll('#ratingGroup button');
+      buttons.forEach((btn, index) => {
+        btn.classList.toggle('selected', index + 1 === rating);
+      });
+    }
+
+    async function submitFeedback() {
+      const form = document.getElementById('feedbackForm');
+      const data = {
+        mentorName: form.mentor.value,
+        program: form.program.value,
+        expertise: form.expertise.value,
+        communication: form.communication.value,
+        supportiveness: form.supportiveness.value,
+        suggestions: form.suggestions.value,
+        overallSatisfaction: selectedRating
+      };
+
+      if (
+        !data.mentorName ||
+        !data.program ||
+        !data.expertise ||
+        !data.communication ||
+        !data.supportiveness ||
+        !data.overallSatisfaction
+      ) {
+        alert("Please fill in all required fields and select a satisfaction rating.");
+        return;
+      }
+
+      // Validate rating values
+      const ratingFields = ['expertise', 'communication', 'supportiveness', 'overallSatisfaction'];
+      for (const field of ratingFields) {
+        const value = parseInt(data[field]);
+        if (isNaN(value) || value < 1 || value > 5) {
+          alert(`${field} rating must be a number between 1 and 5.`);
+          return;
+        }
+        data[field] = value;
+      }
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(apiUrl('/feedback'), {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          alert("✅ Feedback submitted successfully!\n\nThank you for your feedback.");
+          form.reset();
+          selectRating(0);
+        } else {
+          const error = await response.json();
+          alert("Error submitting feedback: " + error.message);
+        }
+      } catch (error) {
+        console.error('Error submitting feedback:', error);
+        alert("Error submitting feedback. Please try again.");
+      }
+    }
+
+    function navigate(section) {
+      if (section === 'logout') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'mentoringlogin.html';
+        return;
+      }
+
+      const routes = {
+        home: 'index.html',
+        profile: 'mentoringdashboard.html',
+        meetings: 'mentoringschedule.html',
+        feedback: 'mentoringfeedback.html',
+        logout: 'mentoringlogin.html'
+      };
+
+      if (routes[section]) {
+        window.location.href = routes[section];
+      } else {
+        console.error('No page found for:', section);
+      }
+    }
+  </script>
+</body>
+</html>

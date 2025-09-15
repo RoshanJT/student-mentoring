@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Christ Mentoring - Home</title>
+  <link rel="stylesheet" href="stylehome.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">CU <span>ChristMentoring</span></div>
+    <nav>
+      <button class="nav-btn active" onclick="navigate('home')">Home</button>
+      <button class="nav-btn" onclick="navigate('profile')">Profile</button>
+      <button class="nav-btn" onclick="navigate('meetings')">Meetings</button>
+      <button class="nav-btn" onclick="navigate('feedback')">Feedback</button>
+      <button class="logout-btn" onclick="navigate('logout')">Logout</button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="home-header">
+      <h1>🏠 Home</h1>
+      <div class="user-info">
+        <img class="avatar" src="avatar.png" alt="User Avatar">
+        <p>John Doe</p>
+        <small>Computer Science Major<br>Christ University (SoET)</small>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Upcoming Meetings</h3>
+      <div class="meeting">
+        Today, 10:00 AM<br>
+        <strong>Mentoring Session with Dr. Evelyn Reed</strong>
+        Discussing research proposals and next steps.
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Recent Activity</h3>
+      <div class="activity-item">
+        <div class="activity-icon">L</div>
+        <div>
+          Submitted research proposal draft<br>
+          <small style="color: #ccc;">Completed</small>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon">D</div>
+        <div>
+          Dr. Evelyn Reed provided feedback on proposal<br>
+          <small style="color: #ccc;">Reviewed</small>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon">C</div>
+        <div>
+          Preparing presentation for next meeting<br>
+          <small style="color: #ccc;">In Progress</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Skills Development</h3>
+      <div class="progress-group">
+        <div class="progress-label">
+          <span>Communication Skills</span>
+          <span id="commSkill">0% Complete</span>
+        </div>
+        <progress id="commProgress" value="0" max="100"></progress>
+      </div>
+
+      <div class="progress-group">
+        <div class="progress-label">
+          <span>Problem Solving</span>
+          <span id="problemSkill">0% Complete</span>
+        </div>
+        <progress id="problemProgress" value="0" max="100"></progress>
+      </div>
+
+      <div class="progress-group">
+        <div class="progress-label">
+          <span>Teamwork</span>
+          <span id="teamSkill">0% Complete</span>
+        </div>
+        <progress id="teamProgress" value="0" max="100"></progress>
+      </div>
+
+      <div class="progress-group">
+        <div class="progress-label">
+          <span>Leadership</span>
+          <span id="leadSkill">0% Complete</span>
+        </div>
+        <progress id="leadProgress" value="0" max="100"></progress>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Academic Progress</h3>
+      <div class="progress-group">
+        <div class="progress-label">
+          <span>Research Proposal</span>
+          <span>75% Complete</span>
+        </div>
+        <progress value="75" max="100"></progress>
+      </div>
+
+      <div class="progress-group">
+        <div class="progress-label">
+          <span>Presentation Preparation</span>
+          <span>50% Complete</span>
+        </div>
+        <progress value="50" max="100"></progress>
+      </div>
+
+      <div class="progress-group">
+        <div class="progress-label">
+          <span>Final Report</span>
+          <span>25% Complete</span>
+        </div>
+        <progress value="25" max="100"></progress>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="#">Home</a>
+      <a href="#">About Us</a>
+      <a href="#">Services</a>
+      <a href="#">Contact</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+    </div>
+    <p>© 2025 Christ Mentoring. All rights reserved.</p>
+  </footer>
+
+  <script src="frontend-config.js"></script>
+  <script>
+    // Check authentication
+    window.addEventListener('load', async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = 'mentoringlogin.html';
+        return;
+      }
+
+      // Load dashboard data
+      await loadDashboardData();
+    });
+
+    async function loadDashboardData() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(apiUrl('/student/dashboard'), {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          updateDashboard(data);
+        } else {
+          console.error('Failed to load dashboard data');
+        }
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
+      }
+    }
+
+    function updateDashboard(data) {
+      const { user, upcomingMeetings, recentMeetings, recentFeedback } = data;
+
+      // Update user info
+      if (user) {
+        const avatar = document.querySelector('.avatar');
+        const nameElement = document.querySelector('.user-info p');
+        const detailsElement = document.querySelector('.user-info small');
+        
+        if (nameElement) nameElement.textContent = user.name;
+        if (detailsElement) detailsElement.textContent = `${user.program}\nChrist University (SoET)`;
+      }
+
+      // Update upcoming meetings
+      const upcomingSection = document.querySelector('.section:nth-child(2)');
+      if (upcomingMeetings && upcomingMeetings.length > 0) {
+        const meeting = upcomingMeetings[0];
+        const meetingElement = upcomingSection.querySelector('.meeting');
+        if (meetingElement) {
+          const meetingDate = new Date(meeting.scheduledDate).toLocaleDateString();
+          const meetingTime = meeting.scheduledTime;
+          meetingElement.innerHTML = `
+            ${meetingDate}, ${meetingTime}<br>
+            <strong>Mentoring Session with ${meeting.mentorName}</strong><br>
+            ${meeting.topic}
+          `;
+        }
+      }
+
+      // Update recent activity
+      const activitySection = document.querySelector('.section:nth-child(3)');
+      if (recentMeetings && recentMeetings.length > 0) {
+        const activitiesContainer = activitySection.querySelector('.activity-item').parentElement;
+        activitiesContainer.innerHTML = '';
+        
+        recentMeetings.slice(0, 3).forEach((meeting, index) => {
+          const activityItem = document.createElement('div');
+          activityItem.className = 'activity-item';
+          activityItem.innerHTML = `
+            <div class="activity-icon">M</div>
+            <div>
+              Meeting with ${meeting.mentorName} - ${meeting.topic}<br>
+              <small style="color: #ccc;">Completed</small>
+            </div>
+          `;
+          activitiesContainer.appendChild(activityItem);
+        });
+      }
+
+      // Update skills development section
+      if (user && user.skills) {
+        updateSkillsProgress(user.skills);
+      }
+    }
+
+    function updateSkillsProgress(skills) {
+      // Update Communication Skills
+      const commProgress = document.getElementById('commProgress');
+      const commSkill = document.getElementById('commSkill');
+      if (commProgress && commSkill) {
+        const commValue = skills.communication || 0;
+        commProgress.value = commValue;
+        commSkill.textContent = `${commValue}% Complete`;
+      }
+
+      // Update Problem Solving
+      const problemProgress = document.getElementById('problemProgress');
+      const problemSkill = document.getElementById('problemSkill');
+      if (problemProgress && problemSkill) {
+        const problemValue = skills.problemSolving || 0;
+        problemProgress.value = problemValue;
+        problemSkill.textContent = `${problemValue}% Complete`;
+      }
+
+      // Update Teamwork
+      const teamProgress = document.getElementById('teamProgress');
+      const teamSkill = document.getElementById('teamSkill');
+      if (teamProgress && teamSkill) {
+        const teamValue = skills.teamwork || 0;
+        teamProgress.value = teamValue;
+        teamSkill.textContent = `${teamValue}% Complete`;
+      }
+
+      // Update Leadership (calculate based on other skills)
+      const leadProgress = document.getElementById('leadProgress');
+      const leadSkill = document.getElementById('leadSkill');
+      if (leadProgress && leadSkill) {
+        const leadValue = Math.round((skills.communication + skills.problemSolving + skills.teamwork) / 3) || 0;
+        leadProgress.value = leadValue;
+        leadSkill.textContent = `${leadValue}% Complete`;
+      }
+    }
+
+    function navigate(section) {
+      if (section === 'logout') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'mentoringlogin.html';
+        return;
+      }
+
+      const routes = {
+        home: 'index.html',
+        profile: 'mentoringdashboard.html',
+        meetings: 'mentoringschedule.html',
+        feedback: 'mentoringfeedback.html',
+        logout: 'mentoringlogin.html'  
+      };
+
+      if (routes[section]) {
+        window.location.href = routes[section];
+      } else {
+        console.error('Page not found for:', section);
+      }
+    }
+  </script>
+</body>
+</html>
+
+

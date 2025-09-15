@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Christ Mentoring - Meetings</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-color: #0a0f1b;
+      color: white;
+    }
+
+    .navbar {
+      background-color: #101828;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 40px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .logo span {
+      font-weight: normal;
+      color: #ccc;
+      margin-left: 5px;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: #ccc;
+      margin-left: 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .nav-btn:hover:not(.logout-btn),
+    .nav-btn.active {
+      color: #00c8ff;
+    }
+
+    .logout-btn {
+      background-color: #fff;
+      color: #000;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: 20px;
+      transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background-color: #00c8ff;
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .dashboard {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin: 30px 40px;
+    }
+
+    .left-panel,
+    .right-panel {
+      width: 48%;
+    }
+
+    .buttons {
+      margin-bottom: 20px;
+    }
+
+    .buttons button {
+      padding: 10px 15px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .buttons button:first-child {
+      background-color: #00c8ff;
+      color: white;
+    }
+
+    .buttons button:last-child {
+      background-color: white;
+      color: black;
+    }
+
+    .meeting {
+      background-color: #1f2937;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .meeting button {
+      margin-top: 10px;
+      padding: 6px 12px;
+      border-radius: 10px;
+      background-color: white;
+      color: black;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .meeting button:hover {
+      background-color: #00c8ff;
+      color: white;
+    }
+
+    .calendar {
+      background-color: #1f2937;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .calendar-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: #1f2937;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .calendar-table th,
+    .calendar-table td {
+      padding: 8px;
+      text-align: center;
+      border: 1px solid #2e3659;
+      width: 14.28%;
+      height: 40px;
+      position: relative;
+    }
+
+    .calendar-table th {
+      background-color: #1a1f3c;
+      font-weight: bold;
+    }
+
+    .calendar-table td {
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .calendar-table td:hover {
+      background-color: #2d3748;
+    }
+
+    .calendar-table td.today {
+      background-color: #00c8ff;
+      color: #000;
+    }
+
+    .calendar-table td.has-meeting {
+      background-color: #2ecc71;
+      color: #000;
+    }
+
+    .meeting-icon {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 8px;
+      height: 8px;
+      background-color: #ff6b6b;
+      border-radius: 50%;
+      font-size: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .meeting-icon::after {
+      content: "●";
+      color: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: #1f2937;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #2e3659;
+    }
+
+    th {
+      background-color: #1a1f3c;
+    }
+
+    .search {
+      margin: 30px 40px 10px;
+    }
+
+    .search input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 40px 10px 20px;
+      font-size: 14px;
+      color: #aaa;
+      margin-top: 40px;
+      background-color: #101828;
+    }
+
+    .footer a {
+      color: #aaa;
+      margin: 0 10px;
+      text-decoration: none;
+    }
+
+    .footer-icons {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">CU <span>ChristMentoring</span></div>
+    <nav>
+      <button class="nav-btn" onclick="navigate('home')">Home</button>
+      <button class="nav-btn" onclick="navigate('profile')">Profile</button>
+      <button class="nav-btn active" onclick="navigate('meetings')">Meetings</button>
+      <button class="nav-btn" onclick="navigate('feedback')">Feedback</button>
+      <button class="logout-btn" onclick="navigate('logout')">Logout</button>
+    </nav>
+  </header>
+
+  <div class="dashboard">
+    <div class="left-panel">
+      <div class="buttons">
+        <button onclick="addMeeting()">Add Meeting</button>
+        <button onclick="deleteMeeting()">Delete Meeting</button>
+      </div>
+
+      <div class="meeting">
+        <p><strong>Tomorrow, 10:00 AM</strong><br>
+          Career Path Discussion<br>
+          With Sophia Carter</p>
+        <button onclick="reschedule('Career Path Discussion')">Reschedule</button>
+      </div>
+
+      <div class="meeting">
+        <p><strong>Next Week, 2:00 PM</strong><br>
+          Resume Review<br>
+          With Ethan Clark</p>
+        <button onclick="reschedule('Resume Review')">Reschedule</button>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="calendar">
+        <p><strong>Calendar</strong></p>
+        <p id="currentMonth">September 2024</p>
+        <table class="calendar-table" id="calendarTable">
+          <tr><th>S</th><th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th></tr>
+          <tr>
+            <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="search">
+    <input type="text" placeholder="Search past meetings" oninput="searchMeetings(this.value)" />
+  </div>
+
+  <div style="margin: 0 40px;">
+    <table id="meetingsTable">
+      <tr>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Mentee/Mentor</th>
+        <th>Topic</th>
+        <th>Actions</th>
+      </tr>
+      <tr>
+        <td>2024-07-20</td>
+        <td>11:00 AM</td>
+        <td>Olivia Chen</td>
+        <td>Interview Prep</td>
+        <td><a href="#" style="color:#00c8ff;">View Notes</a></td>
+      </tr>
+      <tr>
+        <td>2024-07-15</td>
+        <td>3:00 PM</td>
+        <td>Nathan Taylor</td>
+        <td>Networking Strategies</td>
+        <td><a href="#" style="color:#00c8ff;">View Notes</a></td>
+      </tr>
+      <tr>
+        <td>2024-07-10</td>
+        <td>9:00 AM</td>
+        <td>Chloe Davis</td>
+        <td>Goal Setting</td>
+        <td><a href="#" style="color:#00c8ff;">View Notes</a></td>
+      </tr>
+    </table>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="#">Home</a>
+      <a href="#">About Us</a>
+      <a href="#">Services</a>
+      <a href="#">Contact</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+    </div>
+    <div class="footer-icons">
+      🔗 📱 💬 📲
+    </div>
+    <p>© 2025 Christ Mentoring. All rights reserved.</p>
+  </footer>
+
+  <script src="frontend-config.js"></script>
+  <script>
+    let meetings = [];
+    let currentDate = new Date();
+
+    // Check authentication and load data
+    window.addEventListener('load', async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = 'mentoringlogin.html';
+        return;
+      }
+
+      await loadMeetings();
+      generateCalendar();
+    });
+
+    async function loadMeetings() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(apiUrl('/meetings'), {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          meetings = data.meetings;
+          updateMeetingsDisplay();
+        } else {
+          console.error('Failed to load meetings');
+        }
+      } catch (error) {
+        console.error('Error loading meetings:', error);
+      }
+    }
+
+    function updateMeetingsDisplay() {
+      // Update upcoming meetings in left panel
+      const leftPanel = document.querySelector('.left-panel');
+      const existingMeetings = leftPanel.querySelectorAll('.meeting');
+      existingMeetings.forEach(meeting => meeting.remove());
+
+      const upcomingMeetings = meetings.filter(meeting => 
+        new Date(meeting.scheduledDate) >= new Date() && 
+        meeting.status !== 'cancelled'
+      ).slice(0, 2);
+
+      upcomingMeetings.forEach(meeting => {
+        const meetingElement = document.createElement('div');
+        meetingElement.className = 'meeting';
+        const meetingDate = new Date(meeting.scheduledDate).toLocaleDateString();
+        meetingElement.innerHTML = `
+          <p><strong>${meetingDate}, ${meeting.scheduledTime}</strong><br>
+          ${meeting.topic}<br>
+          With ${meeting.mentorName}</p>
+          <button onclick="reschedule('${meeting._id}')">Reschedule</button>
+          <button onclick="deleteMeeting('${meeting._id}')" style="background-color: #ff4444; color: white; margin-left: 5px;">Delete</button>
+        `;
+        leftPanel.appendChild(meetingElement);
+      });
+
+      // Update meetings table
+      updateMeetingsTable();
+      
+      // Update calendar with meeting icons
+      updateCalendarWithMeetings();
+    }
+
+    function updateMeetingsTable() {
+      const table = document.getElementById("meetingsTable");
+      const tbody = table.querySelector('tbody') || table;
+      
+      // Clear existing rows except header
+      const rows = tbody.querySelectorAll('tr');
+      for (let i = 1; i < rows.length; i++) {
+        rows[i].remove();
+      }
+
+      // Add meeting rows
+      meetings.forEach(meeting => {
+        const row = document.createElement('tr');
+        const meetingDate = new Date(meeting.scheduledDate).toLocaleDateString();
+        row.innerHTML = `
+          <td>${meetingDate}</td>
+          <td>${meeting.scheduledTime}</td>
+          <td>${meeting.mentorName}</td>
+          <td>${meeting.topic}</td>
+          <td>
+            <a href="#" style="color:#00c8ff;" onclick="viewNotes('${meeting._id}')">View Notes</a>
+            <button onclick="reschedule('${meeting._id}')" style="margin-left: 10px; padding: 2px 6px; font-size: 12px;">Reschedule</button>
+            <button onclick="deleteMeeting('${meeting._id}')" style="margin-left: 5px; padding: 2px 6px; font-size: 12px; background-color: #ff4444; color: white;">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function addMeeting() {
+      const mentorName = prompt("Enter mentor name:");
+      if (!mentorName) return;
+
+      const topic = prompt("Enter meeting topic:");
+      if (!topic) return;
+
+      const scheduledDate = prompt("Enter meeting date (YYYY-MM-DD):");
+      if (!scheduledDate) return;
+
+      const scheduledTime = prompt("Enter meeting time (HH:MM AM/PM):");
+      if (!scheduledTime) return;
+
+      const duration = prompt("Enter duration in minutes (default 60):") || 60;
+      const location = prompt("Enter location (default: Online):") || "Online";
+      const notes = prompt("Enter notes (optional):") || "";
+
+      createMeeting({
+        mentorName,
+        topic,
+        scheduledDate,
+        scheduledTime,
+        duration: parseInt(duration),
+        location,
+        notes
+      });
+    }
+
+    async function createMeeting(meetingData) {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(apiUrl('/meetings'), {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(meetingData)
+        });
+
+        if (response.ok) {
+          alert("Meeting created successfully!");
+          await loadMeetings();
+          updateCalendarWithMeetings();
+        } else {
+          const error = await response.json();
+          alert("Error creating meeting: " + error.message);
+        }
+      } catch (error) {
+        console.error('Error creating meeting:', error);
+        alert("Error creating meeting. Please try again.");
+      }
+    }
+
+    async function deleteMeeting(meetingId) {
+      if (!confirm("Are you sure you want to delete this meeting?")) return;
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(apiUrl(`/meetings/${meetingId}`), {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          alert("Meeting deleted successfully!");
+          await loadMeetings();
+          updateCalendarWithMeetings();
+        } else {
+          const error = await response.json();
+          alert("Error deleting meeting: " + error.message);
+        }
+      } catch (error) {
+        console.error('Error deleting meeting:', error);
+        alert("Error deleting meeting. Please try again.");
+      }
+    }
+
+    function reschedule(meetingId) {
+      const meeting = meetings.find(m => m._id === meetingId);
+      if (!meeting) return;
+
+      const newDate = prompt("Enter new date (YYYY-MM-DD):", new Date(meeting.scheduledDate).toISOString().split('T')[0]);
+      if (!newDate) return;
+
+      const newTime = prompt("Enter new time (HH:MM AM/PM):", meeting.scheduledTime);
+      if (!newTime) return;
+
+      updateMeeting(meetingId, {
+        scheduledDate: newDate,
+        scheduledTime: newTime,
+        status: 'rescheduled'
+      });
+    }
+
+    async function updateMeeting(meetingId, updateData) {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(apiUrl(`/meetings/${meetingId}`), {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updateData)
+        });
+
+        if (response.ok) {
+          alert("Meeting updated successfully!");
+          await loadMeetings();
+          updateCalendarWithMeetings();
+        } else {
+          const error = await response.json();
+          alert("Error updating meeting: " + error.message);
+        }
+      } catch (error) {
+        console.error('Error updating meeting:', error);
+        alert("Error updating meeting. Please try again.");
+      }
+    }
+
+    function viewNotes(meetingId) {
+      const meeting = meetings.find(m => m._id === meetingId);
+      if (meeting) {
+        alert(`Meeting Notes:\n\n${meeting.notes || 'No notes available.'}`);
+      }
+    }
+
+    function searchMeetings(value) {
+      const filter = value.toLowerCase();
+      const table = document.getElementById("meetingsTable");
+      const rows = table.getElementsByTagName("tr");
+
+      for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName("td");
+        let match = false;
+        for (let j = 0; j < cells.length; j++) {
+          if (cells[j].textContent.toLowerCase().includes(filter)) {
+            match = true;
+            break;
+          }
+        }
+        rows[i].style.display = match ? "" : "none";
+      }
+    }
+
+    function generateCalendar() {
+      const calendarTable = document.getElementById('calendarTable');
+      const monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+      
+      // Update month display
+      document.getElementById('currentMonth').textContent = 
+        `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+      
+      // Clear existing calendar content (except header)
+      const rows = calendarTable.querySelectorAll('tr');
+      for (let i = 1; i < rows.length; i++) {
+        rows[i].innerHTML = '<td></td><td></td><td></td><td></td><td></td><td></td><td></td>';
+      }
+      
+      // Get first day of month and number of days
+      const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+      const daysInMonth = lastDay.getDate();
+      const startingDayOfWeek = firstDay.getDay();
+      
+      // Fill calendar
+      let day = 1;
+      for (let week = 1; week < rows.length; week++) {
+        const cells = rows[week].querySelectorAll('td');
+        for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+          if (week === 1 && dayOfWeek < startingDayOfWeek) {
+            cells[dayOfWeek].textContent = '';
+          } else if (day <= daysInMonth) {
+            cells[dayOfWeek].textContent = day;
+            cells[dayOfWeek].setAttribute('data-day', day);
+            cells[dayOfWeek].setAttribute('data-date', 
+              `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+            
+            // Highlight today
+            const today = new Date();
+            if (day === today.getDate() && 
+                currentDate.getMonth() === today.getMonth() && 
+                currentDate.getFullYear() === today.getFullYear()) {
+              cells[dayOfWeek].classList.add('today');
+            }
+            
+            day++;
+          } else {
+            cells[dayOfWeek].textContent = '';
+          }
+        }
+      }
+      
+      // Update calendar with meeting icons
+      updateCalendarWithMeetings();
+    }
+
+    function updateCalendarWithMeetings() {
+      // Clear existing meeting icons
+      const cells = document.querySelectorAll('.calendar-table td');
+      cells.forEach(cell => {
+        cell.classList.remove('has-meeting');
+        const existingIcon = cell.querySelector('.meeting-icon');
+        if (existingIcon) {
+          existingIcon.remove();
+        }
+      });
+      
+      // Add meeting icons
+      meetings.forEach(meeting => {
+        const meetingDate = new Date(meeting.scheduledDate);
+        const dateString = meetingDate.toISOString().split('T')[0];
+        
+        const cell = document.querySelector(`[data-date="${dateString}"]`);
+        if (cell) {
+          cell.classList.add('has-meeting');
+          
+          // Add meeting icon
+          const icon = document.createElement('div');
+          icon.className = 'meeting-icon';
+          icon.title = `${meeting.topic} with ${meeting.mentorName} at ${meeting.scheduledTime}`;
+          cell.appendChild(icon);
+        }
+      });
+    }
+
+    function navigate(section) {
+      if (section === 'logout') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'mentoringlogin.html';
+        return;
+      }
+
+      const routes = {
+        home: 'index.html',
+        profile: 'mentoringdashboard.html',
+        meetings: 'mentoringschedule.html',
+        feedback: 'mentoringfeedback.html',
+        logout: 'mentoringlogin.html'
+      };
+
+      if (routes[section]) {
+        window.location.href = routes[section];
+      } else {
+        console.error('Page not found for:', section);
+      }
+    }
+  </script>
+</body>
+</html>
