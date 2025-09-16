@@ -10,27 +10,6 @@ router.post('/register', async (req, res) => {
   try {
     const { email, password, name, program, studentId } = req.body;
 
-    // Validate required fields
-    if (!email || !password || !name || !program || !studentId) {
-      return res.status(400).json({ message: 'All fields are required' });
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ message: 'Invalid email format' });
-    }
-
-    // Validate password length
-    if (password.length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
-    }
-
-    // Validate student ID format (assuming it should be alphanumeric)
-    if (!/^[A-Za-z0-9]+$/.test(studentId)) {
-      return res.status(400).json({ message: 'Student ID must contain only letters and numbers' });
-    }
-
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {

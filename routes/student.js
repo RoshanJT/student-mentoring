@@ -52,39 +52,12 @@ router.put('/profile', verifyToken, async (req, res) => {
     const { name, program, attendance, gpa, totalCredits, skills } = req.body;
 
     const updateData = {};
-    if (name) updateData.name = name.trim();
+    if (name) updateData.name = name;
     if (program) updateData.program = program;
-    if (attendance !== undefined) {
-      if (attendance < 0 || attendance > 100) {
-        return res.status(400).json({ message: 'Attendance must be between 0 and 100' });
-      }
-      updateData.attendance = attendance;
-    }
-    if (gpa !== undefined) {
-      if (gpa < 0 || gpa > 4.0) {
-        return res.status(400).json({ message: 'GPA must be between 0 and 4.0' });
-      }
-      updateData.gpa = gpa;
-    }
-    if (totalCredits !== undefined) {
-      if (totalCredits < 0) {
-        return res.status(400).json({ message: 'Total credits cannot be negative' });
-      }
-      updateData.totalCredits = totalCredits;
-    }
-    if (skills) {
-      // Validate skills object
-      const validSkills = ['communication', 'problemSolving', 'teamwork'];
-      for (const [key, value] of Object.entries(skills)) {
-        if (!validSkills.includes(key)) {
-          return res.status(400).json({ message: `Invalid skill: ${key}` });
-        }
-        if (value < 0 || value > 100) {
-          return res.status(400).json({ message: `${key} skill rating must be between 0 and 100` });
-        }
-      }
-      updateData.skills = skills;
-    }
+    if (attendance !== undefined) updateData.attendance = attendance;
+    if (gpa !== undefined) updateData.gpa = gpa;
+    if (totalCredits !== undefined) updateData.totalCredits = totalCredits;
+    if (skills) updateData.skills = skills;
 
     const user = await User.findByIdAndUpdate(
       req.userId,

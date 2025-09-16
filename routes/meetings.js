@@ -39,31 +39,15 @@ router.post('/', verifyToken, async (req, res) => {
   try {
     const { mentorName, topic, scheduledDate, scheduledTime, duration, location, notes } = req.body;
 
-    // Validate required fields
-    if (!mentorName || !topic || !scheduledDate || !scheduledTime) {
-      return res.status(400).json({ message: 'Mentor name, topic, scheduled date, and time are required' });
-    }
-
-    // Validate scheduled date is in the future
-    const meetingDate = new Date(scheduledDate);
-    if (meetingDate <= new Date()) {
-      return res.status(400).json({ message: 'Meeting must be scheduled for a future date' });
-    }
-
-    // Validate duration
-    if (duration && (duration < 15 || duration > 180)) {
-      return res.status(400).json({ message: 'Duration must be between 15 and 180 minutes' });
-    }
-
     const meeting = new Meeting({
       studentId: req.userId,
-      mentorName: mentorName.trim(),
-      topic: topic.trim(),
-      scheduledDate: meetingDate,
-      scheduledTime: scheduledTime.trim(),
+      mentorName,
+      topic,
+      scheduledDate: new Date(scheduledDate),
+      scheduledTime,
       duration: duration || 60,
-      location: location ? location.trim() : 'Online',
-      notes: notes ? notes.trim() : ''
+      location: location || 'Online',
+      notes: notes || ''
     });
 
     await meeting.save();
