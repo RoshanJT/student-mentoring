@@ -10,6 +10,27 @@ router.post('/api/auth/register', async (req, res) => {
   try {
     const { email, password, name, program, studentId } = req.body;
 
+    // Validate required fields
+    if (!email || !password || !name || !program || !studentId) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
+
+    // Validate student ID format (assuming it should be alphanumeric)
+    if (!/^[A-Za-z0-9]+$/.test(studentId)) {
+      return res.status(400).json({ message: 'Student ID must contain only letters and numbers' });
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -58,7 +79,7 @@ router.post('/api/auth/register', async (req, res) => {
 });
 
 // Login student
-router.post('api/auth/login', async (req, res) => {
+router.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -120,7 +141,7 @@ const verifyToken = (req, res, next) => {
 };
 
 // Get current user profile
-router.get('api/auth/profile', verifyToken, async (req, res) => {
+router.get('/api/auth/profile', verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.userId).select('-password');
     if (!user) {
@@ -135,5 +156,4 @@ router.get('api/auth/profile', verifyToken, async (req, res) => {
 });
 
 module.exports = { router, verifyToken };
-
 

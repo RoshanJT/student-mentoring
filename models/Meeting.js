@@ -62,3 +62,4 @@ meetingSchema.pre('save', function(next) {
 module.exports = mongoose.model('Meeting', meetingSchema);
 
 
+
