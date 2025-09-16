@@ -6,7 +6,7 @@ const config = require('../config');
 const router = express.Router();
 
 // Register new student
-router.post('/api/auth/register', async (req, res) => {
+router.post('/api/auth/register/', async (req, res) => {
   try {
     const { email, password, name, program, studentId } = req.body;
 
