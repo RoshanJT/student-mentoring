@@ -3,8 +3,8 @@ if (typeof window !== 'undefined') {
     // Local development
     window.__BACKEND_BASE_URL__ = "http://localhost:3000/api";
   } else {
-    // Production (Vercel)
-    window.__BACKEND_BASE_URL__ = "https://student-mentoring-backend.vercel.app/api";
+    // Production (Vercel) - use same-origin API
+    window.__BACKEND_BASE_URL__ = "/api";
   }
 }
 
