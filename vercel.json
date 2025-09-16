@@ -10,7 +10,12 @@
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/", "dest": "/mentoringlogin.html" },
+    { "src": "/", "dest": "/index.html" },
     { "src": "/(.*)", "dest": "/$1" }
-  ]
+  ],
+  "functions": {
+    "api/api.js": {
+      "maxDuration": 30
+    }
+  }
 }
